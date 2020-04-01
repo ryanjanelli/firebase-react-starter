@@ -1,26 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import * as firebase from 'firebase/app';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    speed: 10
+  }
+
+  componentDidMount() {
+    const rootRef = firebase.database().ref().child('react');
+    const speedRef = rootRef.child('speed');
+    speedRef.on('value', snap => {
+      this.setState({
+        speed: snap.val()
+      });
+    });
+  }
+
+  writeSpeedToFb = (input) => {
+    firebase.database().ref('react').set({
+      speed: input.target.value
+    })
+  }
+
+  usernameChangedHandler = (input) => {
+    this.setState({speed: input.target.value})
+    this.writeSpeedToFb(input);
+
+  }
+
+  render() {
+    return (
+      <div className='App'>
+        <h1>{this.state.speed}</h1>
+        <input type="text" value={this.state.speed} onChange={this.usernameChangedHandler}/>
+      </div>
+    );
+  }
 }
 
 export default App;
